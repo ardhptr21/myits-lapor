@@ -15,7 +15,7 @@ export const mustAuthMiddleware: Middleware = async (req, _, next) => {
     if (!user) throw new HTTPException(401, 'Unauthorized: user not found');
 
     req.user = {
-      ...user,
+      ...user.toObject(),
       id: user.id as string,
     };
 

@@ -20,6 +20,7 @@ export const globalErrorMiddleware = (
   if (err instanceof HTTPException) {
     response.withCode(err.code).withMessage(err.message).withErrors(err.errors);
   } else {
+    console.error(err);
     response.withCode(500).withMessage('Internal server error');
   }
 

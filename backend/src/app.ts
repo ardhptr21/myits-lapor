@@ -12,14 +12,17 @@ const DATABASE_URL = process.env.DATABASE_URL || 'mongodb://127.0.0.1:27017/myit
 // ------------------
 // GLOBAL MIDDLEWARES
 // ------------------
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 // ---------------
 // REGISTER ROUTES
 // ---------------
 import authRouter from './http/auth-http';
+import reportRouter from './http/report-http';
 
 app.use('/auth', authRouter);
+app.use('/reports', reportRouter);
 
 // --------------------
 // GLOBAL ERROR HANDLER

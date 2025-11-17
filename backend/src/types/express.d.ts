@@ -13,6 +13,7 @@ declare global {
         query: any;
         params: any;
       };
+      uploadFolder: string | null;
     }
   }
 }
