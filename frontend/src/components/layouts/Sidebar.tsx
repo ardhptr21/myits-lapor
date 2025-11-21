@@ -1,4 +1,4 @@
-import { FileText, Home, UserPen } from 'lucide-react';
+import { FilePen, FileText, Home, UserPen } from 'lucide-react';
 
 import {
   SidebarContent,
@@ -17,6 +17,7 @@ import { Link, useLocation } from 'react-router-dom';
 const items = [
   { title: 'Beranda', url: '/', icon: Home },
   { title: 'Laporan', url: '/reports', icon: FileText },
+  { title: 'Lapor Kerusakan', url: '/reports/create', icon: FilePen },
   { title: 'Laporan Saya', url: '/reports/me', icon: UserPen },
 ];
 

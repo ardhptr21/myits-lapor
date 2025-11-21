@@ -1,3 +1,4 @@
+import Loading from '@/components/common/Loading';
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -21,7 +22,7 @@ export function withAuth<P extends object>(WrappedComponent: React.ComponentType
     }, []);
 
     if (loading) {
-      return 'Loading...';
+      return <Loading />;
     }
 
     if (!user) {

@@ -1,6 +1,7 @@
 import Layout from '@/components/layouts/Layout';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { Link } from 'react-router-dom';
 import { withAuth } from '../hocs/withAuth';
 
 const Home = withAuth(() => {
@@ -21,7 +22,7 @@ const Home = withAuth(() => {
           </div>
           <div className="mt-10">
             <Button size="xl" variant="secondary">
-              Lapor Kerusakan!
+              <Link to="/reports/create">Lapor Kerusakan!</Link>
             </Button>
           </div>
         </div>
