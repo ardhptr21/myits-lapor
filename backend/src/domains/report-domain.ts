@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { createReportValidator, updateReportValidator } from '../validators/report-validator';
+import {
+  createReportProgressValidator,
+  createReportValidator,
+  updateReportValidator,
+} from '../validators/report-validator';
+import { ProgressType } from 'models/progress';
 
 export type CreateReportRequest = z.infer<typeof createReportValidator>;
 export type UpdateReportRequest = z.infer<typeof updateReportValidator>;
@@ -10,6 +15,12 @@ export type ReportResponse = {
     id: string;
     name: string;
   };
+  progresses: {
+    id: string;
+    description: string;
+    photos: string[];
+    createdAt: Date;
+  }[];
   title: string;
   location: string;
   priority: 'low' | 'medium' | 'high';
@@ -19,4 +30,11 @@ export type ReportResponse = {
   updatedAt: Date;
 };
 
-export type ListReportsResponse = ReportResponse[];
+export type ReportCreateResponse = {
+  id: string;
+  title: string;
+};
+
+export type ListReportsResponse = Omit<ReportResponse, 'progresses'>[];
+
+export type CreateReportProgressRequest = z.infer<typeof createReportProgressValidator>;

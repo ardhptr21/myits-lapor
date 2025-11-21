@@ -47,6 +47,7 @@ export const loginService = async (body: LoginRequest): Promise<HTTPResponse<Log
   const token = generateToken({
     sub: user._id.toString(),
     email: user.email,
+    role: user.role,
   });
 
   return res

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { ProgressType } from './progress';
 
 const schema = new mongoose.Schema(
   {
@@ -39,5 +40,16 @@ const schema = new mongoose.Schema(
   }
 );
 
+schema.virtual('progresses', {
+  ref: 'Progress',
+  localField: '_id',
+  foreignField: 'report',
+});
+
+schema.set('toObject', { virtuals: true });
+schema.set('toJSON', { virtuals: true });
+
 export const Report = mongoose.model('Report', schema);
-export type ReportType = mongoose.InferSchemaType<typeof schema>;
+export type ReportType = mongoose.InferSchemaType<typeof schema> & {
+  progresses?: (ProgressType & { _id: string })[];
+};

@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 export interface JwtPayload extends jwt.JwtPayload {
   sub: string;
   email: string;
+  role: 'user' | 'admin';
 }
 
 const JWT_SECRET = process.env.JWT_SECRET || 'please_change_this_secret_key';

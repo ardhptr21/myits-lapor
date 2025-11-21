@@ -13,3 +13,8 @@ export const listReportsQueryValidator = z.object({
   page: z.coerce.number().int().min(1).optional(),
   limit: z.coerce.number().int().min(1).max(100).optional(),
 });
+
+export const createReportProgressValidator = z.object({
+  description: z.string().max(500).optional(),
+  photos: z.array(z.string()).optional(),
+});
