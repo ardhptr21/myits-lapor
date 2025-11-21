@@ -63,6 +63,6 @@ const Report = withAuth(() => {
       </div>
     </Layout>
   );
-});
+}, 'user');
 
 export default Report;

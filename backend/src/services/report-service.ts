@@ -201,7 +201,10 @@ export const createReportProgressService = async (
   if (report.status != 'in-progress')
     throw new HTTPException(400, 'Cannot add progress to report that is not in-progress');
 
-  await createProgress(reportId, body);
+  await createProgress(reportId, {
+    ...body,
+    photos: body.photos ? body.photos.map((p) => `uploads/progresses/${p}`) : [],
+  });
 
   return res.withCode(201).withMessage('New report progress success');
 };

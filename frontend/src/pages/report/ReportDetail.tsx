@@ -1,14 +1,84 @@
 import Loading from '@/components/common/Loading';
 import Layout from '@/components/layouts/Layout';
+import AddProgressDialog from '@/components/report/AddProgressDialog';
+import ProgressTimeline, { type Progress } from '@/components/report/ProgressTimeline';
+import ReportDeleteDialog from '@/components/report/ReportDeleteDialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { withAuth } from '@/hocs/withAuth';
 import { useAuth } from '@/hooks/useAuth';
 import { api, baseURL } from '@/libs/api';
 import type { Report } from '@/types/report';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
+
+type AdminActionsProps = {
+  editHref: string;
+  onDelete: () => void;
+  isDeleting: boolean;
+  status?: string;
+  onToggle?: () => void;
+  isToggling?: boolean;
+};
+
+function ReportDetails({ report }: { report: Report }) {
+  return (
+    <div className="bg-white rounded-lg p-4 shadow-sm">
+      <h3 className="text-sm font-medium">Detail Laporan</h3>
+      <dl className="mt-3 text-sm text-slate-600 space-y-2">
+        <div>
+          <dt className="font-medium">Lokasi</dt>
+          <dd>{report.location}</dd>
+        </div>
+        <div>
+          <dt className="font-medium">Dilaporkan</dt>
+          <dd>{report.reporter?.name}</dd>
+        </div>
+        <div>
+          <dt className="font-medium">Dibuat</dt>
+          <dd>{new Date(report.createdAt).toLocaleString('id-ID')}</dd>
+        </div>
+      </dl>
+    </div>
+  );
+}
+
+function AdminActions({
+  editHref,
+  onDelete,
+  isDeleting,
+  status,
+  onToggle,
+  isToggling,
+}: AdminActionsProps) {
+  const toggleLabel =
+    status === 'pending'
+      ? 'Start Progress'
+      : status === 'in-progress'
+      ? 'Mark as Done'
+      : 'toggle status';
+
+  return (
+    <div className="bg-white rounded-lg p-4 shadow-sm">
+      <h3 className="text-sm font-medium">Aksi</h3>
+      <div className="mt-3 flex flex-col gap-2">
+        <Button variant="secondary" asChild>
+          <Link to={editHref}>Edit Laporan</Link>
+        </Button>
+
+        {onToggle && (status === 'pending' || status === 'in-progress') && (
+          <Button onClick={onToggle} disabled={isToggling}>
+            {isToggling ? 'Memproses...' : toggleLabel}
+          </Button>
+        )}
+
+        <ReportDeleteDialog onDelete={onDelete} isDeleting={isDeleting} />
+      </div>
+    </div>
+  );
+}
 
 function ReportDetail() {
   const { id } = useParams();
@@ -27,6 +97,55 @@ function ReportDetail() {
       return res.data?.data ?? null;
     },
   });
+
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      await api.delete(`/reports/${id}`);
+    },
+    onSuccess: () => {
+      toast.success('Laporan dihapus');
+      queryClient.invalidateQueries({ queryKey: ['reports'] });
+      navigate('/reports');
+    },
+    onError: (err) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const e: any = err;
+      toast.error(e?.response?.data?.message ?? e?.message ?? 'Gagal menghapus laporan');
+    },
+  });
+
+  const toggleMutation = useMutation({
+    mutationFn: async () => {
+      await api.patch(`/reports/${id}/toggle-status`);
+    },
+    onSuccess: () => {
+      toast.success('Status diperbarui');
+      queryClient.invalidateQueries({ queryKey: ['report', id] });
+      queryClient.invalidateQueries({ queryKey: ['reports'] });
+    },
+    onError: (err) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const e: any = err;
+      toast.error(e?.response?.data?.message ?? e?.message ?? 'Gagal mengubah status');
+    },
+  });
+
+  const handleDelete = () => {
+    setIsDeleting(true);
+    deleteMutation.mutate(undefined, {
+      onSettled() {
+        setIsDeleting(false);
+      },
+    });
+  };
+
+  const handleToggle = () => {
+    toggleMutation.mutate();
+  };
 
   if (isLoading) return <Loading />;
   if (error)
@@ -119,37 +238,32 @@ function ReportDetail() {
                 <div className="text-sm text-slate-500">Tidak ada foto untuk ditampilkan.</div>
               )}
             </div>
+
+            <div className="mt-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-medium">Riwayat Progress</h2>
+                {user?.role === 'admin' && report.status === 'in-progress' && (
+                  <AddProgressDialog reportId={report.id} />
+                )}
+              </div>
+              <ProgressTimeline
+                progresses={(report as unknown as { progresses?: Progress[] }).progresses ?? []}
+              />
+            </div>
           </div>
 
           <aside className="space-y-4">
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="text-sm font-medium">Detail Laporan</h3>
-              <dl className="mt-3 text-sm text-slate-600 space-y-2">
-                <div>
-                  <dt className="font-medium">Lokasi</dt>
-                  <dd>{report.location}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Dilaporkan</dt>
-                  <dd>{report.reporter?.name}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Dibuat</dt>
-                  <dd>{new Date(report.createdAt).toLocaleString('id-ID')}</dd>
-                </div>
-              </dl>
-            </div>
+            <ReportDetails report={report} />
 
-            {report.reporter.id === user?.id && (
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <h3 className="text-sm font-medium">Aksi</h3>
-                <div className="mt-3 flex flex-col gap-2">
-                  <Button variant="secondary" asChild>
-                    <Link to={`/reports/${report.id}/edit`}>Edit Laporan</Link>
-                  </Button>
-                  <Button variant="destructive">Hapus Laporan</Button>
-                </div>
-              </div>
+            {user?.role === 'admin' && (
+              <AdminActions
+                editHref={`/reports/${report.id}/edit`}
+                onDelete={handleDelete}
+                isDeleting={isDeleting}
+                status={report.status}
+                onToggle={handleToggle}
+                isToggling={toggleMutation.status === 'pending'}
+              />
             )}
           </aside>
         </div>

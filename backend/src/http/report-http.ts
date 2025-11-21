@@ -92,9 +92,9 @@ router.post(
   '/:id/progress',
   mustAuthMiddleware,
   allowAccess('admin'),
-  uploader('progress', generateFileValidator(['image/jpeg', 'image/png', 'image/jpg'], 5)).fields([
-    { name: 'photos', maxCount: 5 },
-  ]),
+  uploader('progresses', generateFileValidator(['image/jpeg', 'image/png', 'image/jpg'], 5)).fields(
+    [{ name: 'photos', maxCount: 5 }]
+  ),
   validatorMiddleware({ body: createReportProgressValidator }),
   async (req, res) => {
     const response = await createReportProgressService(req.params.id, req.validated.body);

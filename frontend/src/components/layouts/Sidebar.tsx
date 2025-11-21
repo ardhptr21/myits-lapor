@@ -11,17 +11,19 @@ import {
   SidebarMenuItem,
   Sidebar as UISidebar,
 } from '@/components/ui/sidebar';
+import { useAuth } from '@/hooks/useAuth';
 import { useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const items = [
-  { title: 'Beranda', url: '/', icon: Home },
-  { title: 'Laporan', url: '/reports', icon: FileText },
-  { title: 'Lapor Kerusakan', url: '/reports/create', icon: FilePen },
-  { title: 'Laporan Saya', url: '/reports/me', icon: UserPen },
+  { title: 'Beranda', url: '/', icon: Home, acl: 'all' },
+  { title: 'Laporan', url: '/reports', icon: FileText, acl: 'all' },
+  { title: 'Lapor Kerusakan', url: '/reports/create', icon: FilePen, acl: 'user' },
+  { title: 'Laporan Saya', url: '/reports/me', icon: UserPen, acl: 'user' },
 ];
 
 export function AppSidebar() {
+  const { user } = useAuth();
   const location = useLocation();
 
   const isActive = useCallback(
@@ -46,16 +48,18 @@ export function AppSidebar() {
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton size="lg" asChild isActive={isActive(item.url)}>
-                    <Link to={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items.map((item) =>
+                item.acl === 'all' || (item.acl === 'user' && user?.role === 'user') ? (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton size="lg" asChild isActive={isActive(item.url)}>
+                      <Link to={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ) : null
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
