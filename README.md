@@ -222,9 +222,11 @@ The frontend application will be available at `http://localhost:5173`
 
 ### Live Demo
 
-> **Note**: Jika deployment tersedia, tambahkan link demo di sini
+> **🚀 Aplikasi sudah live dan dapat diakses!**
 >
-> 🌐 **Demo URL**: `https://your-deployment-url.com` (akan diupdate saat deployment ready)
+> 🌐 **Demo URL**: [https://myits-lapor.ardhptr21.space](https://myits-lapor.ardhptr21.space)
+>
+> Silakan kunjungi link di atas untuk mencoba langsung fitur-fitur aplikasi MyITS Lapor.
 
 ### Screenshot Aplikasi
 
