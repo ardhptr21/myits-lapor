@@ -5,7 +5,6 @@ import { globalErrorMiddleware, notFoundMiddleware } from './middlewares/base-mi
 import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
-import http from 'http';
 import https from 'https';
 
 const app: Application = express();

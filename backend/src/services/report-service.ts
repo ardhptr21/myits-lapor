@@ -109,8 +109,6 @@ export const getReportService = async (
   if (!report) throw new HTTPException(404, 'Report not found');
   const reporter = report.reporter as unknown as UserType & { _id: string };
 
-  if (reporter._id.toString() !== reporterId) throw new HTTPException(403, 'Access denied');
-
   return res
     .withCode(200)
     .withMessage('Report fetched')
